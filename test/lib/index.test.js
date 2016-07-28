@@ -24,7 +24,7 @@ describe('server', () => {
     assert.strictEqual(lib.healths.status, 'green');
     assert.strictEqual(lib.healths.statuses.one.status, 'green');
     assert.strictEqual(lib.healths.statuses.one.current.services.default.status, 'green');
-    assert.strictEqual(lib.healths.statuses.one.current.services.default.reason, '');
+    assert.notProperty(lib.healths.statuses.one.current.services.default, 'reason');
     assert.strictEqual(lib.healths.statuses.one.previous.services.default.status, 'red');
     assert.strictEqual(lib.healths.statuses.one.previous.services.default.reason, 'service down');
   });
