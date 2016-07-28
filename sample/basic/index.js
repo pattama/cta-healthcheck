@@ -11,13 +11,15 @@ healthCheck.update('two', {
 });
 healthCheck.update('three', {
   status: 'red',
-  reason: 'service four is down',
-  services: [{
-    name: 'four',
-    status: 'red',
-    reason: 'rabbitmq is down',
-  }, {
-    name: 'five',
-    status: 'green',
-  }],
+  reason: 'service down',
+});
+healthCheck.update('four', {
+  status: 'yellow',
+  reason: 'critic point reached',
+  serviceName: 'four/alpha',
+});
+healthCheck.update('four', {
+  status: 'red',
+  reason: 'service down',
+  serviceName: 'four/beta',
 });
