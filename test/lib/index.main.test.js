@@ -2,8 +2,14 @@
 
 const assert = require('chai').assert;
 const supertest = require('supertest');
-const HealthCheck = require('../../lib/class');
-const healthCheck = new HealthCheck();
+const Lib = require('../../lib');
+const config = {
+  name: 'healthCheck',
+  properties: {},
+  singleton: true,
+};
+const dependencies = {};
+const healthCheck = new Lib(dependencies, config);
 
 describe('server', () => {
   it('should set default params', () => {
@@ -11,8 +17,11 @@ describe('server', () => {
     assert.equal(healthCheck.queue, 'healthcheck');
   });
   it('should set custom params', () => {
-    const messaging = require('cta-messaging')();
-    const myHealthCheck = new HealthCheck({port: 3000, queue: 'my_queue'}, {messaging: messaging});
+    dependencies.messaging = require('cta-messaging')();
+    config.properties.port = 3000;
+    config.properties.queue = 'my_queue';
+    const myHealthCheck = new Lib(dependencies, config);
+    // const myHealthCheck = new HealthCheck({port: 3000, queue: 'my_queue'}, {messaging: messaging});
     assert.equal(myHealthCheck.port, 3000);
     assert.equal(myHealthCheck.queue, 'my_queue');
     assert(myHealthCheck.messaging);
