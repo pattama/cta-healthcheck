@@ -15,7 +15,12 @@ describe('singleton', () => {
     instances.one = new Lib(dependencies, config);
     instances.one.foo = 'bar';
     instances.two = new Lib(dependencies, config);
-    assert.equal(instances.two.foo, 'bar');
+    assert.strictEqual(instances.two.foo, 'bar');
+    instances.two.bar = 'foo';
+    assert.strictEqual(instances.one.bar, 'foo');
+    instances.three = new Lib(dependencies, config);
+    assert.strictEqual(instances.three.foo, 'bar');
+    assert.strictEqual(instances.three.bar, 'foo');
   });
   it('should return different instance', () => {
     config.singleton = false;
