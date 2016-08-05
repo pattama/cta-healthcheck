@@ -11,7 +11,7 @@ const config = {
 const dependencies = {};
 const healthCheck = new Lib(dependencies, config);
 
-describe('server', () => {
+describe('tests', () => {
   it('should set default params', () => {
     assert.equal(healthCheck.port, 8080);
     assert.equal(healthCheck.queue, 'healthcheck');
@@ -21,12 +21,11 @@ describe('server', () => {
     config.properties.port = 3000;
     config.properties.queue = 'my_queue';
     const myHealthCheck = new Lib(dependencies, config);
-    // const myHealthCheck = new HealthCheck({port: 3000, queue: 'my_queue'}, {messaging: messaging});
     assert.equal(myHealthCheck.port, 3000);
     assert.equal(myHealthCheck.queue, 'my_queue');
     assert(myHealthCheck.messaging);
   });
-  it('should do nothing when missing parameters', () => {
+  it('should not send update when missing parameters', () => {
     healthCheck.update('one');
     assert.deepEqual(healthCheck.healths, {
       status: '',
@@ -122,5 +121,22 @@ describe('server', () => {
         assert.deepEqual(resp.body, healthCheck.healths);
         done();
       });
+  });
+  it('should return same instance without port conflict', (done) => {
+    try {
+      const instances = {};
+      config.properties.port = 3100;
+      config.singleton = true;
+      instances.one = new Lib(dependencies, config);
+      setTimeout(() => {
+        instances.two = new Lib(dependencies, config);
+        setTimeout(() => {
+          instances.three = new Lib(dependencies, config);
+          done();
+        }, 1000);
+      }, 1000);
+    } catch (e) {
+      assert.fail(e, 'should not be here');
+    }
   });
 });
