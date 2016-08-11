@@ -1,15 +1,26 @@
 'use strict';
 
 const config = {
-  tools: [{
-    name: 'healthcheck',
-    module: 'cta-healthcheck',
-    properties: {
-      port: 8080,
-      queue: 'healthcheck',
+  tools: [
+    {
+      name: 'express',
+      module: 'cta-expresswrapper',
+      properties: {
+        port: 8080,
+      },
     },
-    scope: 'bricks',
-  }],
+    {
+      name: 'healthcheck',
+      module: 'cta-healthcheck',
+      properties: {
+        queue: 'healthcheck',
+      },
+      dependencies: {
+        express: 'express',
+      },
+      scope: 'bricks',
+    },
+  ],
   bricks: [{
     name: 'one',
     module: '../../cta-healthcheck/samples/flowcontrol/bricks/one.js',
