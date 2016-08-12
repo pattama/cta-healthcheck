@@ -35,6 +35,6 @@
     "body-parser": "~1.13.2"
   },
   "sourceDependencies": {
-    "cta-tool": "git@git.sami.int.thomsonreuters.com:compass/cta-tool.git"
+    "cta-tool": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/cta-tool.git"
   }
 }
