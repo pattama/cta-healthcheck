@@ -33,5 +33,8 @@
   "dependencies": {
     "lodash": "~4.11.0",
     "body-parser": "~1.13.2"
+  },
+  "sourceDependencies": {
+    "cta-tool": "git@git.sami.int.thomsonreuters.com:compass/cta-tool.git"
   }
 }
