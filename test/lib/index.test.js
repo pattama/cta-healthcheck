@@ -26,30 +26,9 @@ const dependencies = {
 const healthCheck = new Lib(dependencies, config);
 
 describe('tests', () => {
-  it('should set default params', () => {
-    assert.equal(healthCheck.queue, 'healthcheck');
-  });
-  it('should set custom params', () => {
-    // mock dependencies
-    const mockDependencies = _.cloneDeep(dependencies);
-    // mock messaging
-    mockDependencies.messaging = require('cta-messaging')();
-    // mock express on a custom port
-    const mockExpressConfig = _.cloneDeep(expressConfig);
-    mockExpressConfig.name = 'mockExpress';
-    mockExpressConfig.properties.port = 3000;
-    mockDependencies.express = new Express(expressDependencies, mockExpressConfig);
-
-    // mock config
-    config.properties.queue = 'my_queue';
-
-    const myHealthCheck = new Lib(mockDependencies, config);
-    assert.equal(myHealthCheck.queue, 'my_queue');
-    assert(myHealthCheck.messaging);
-    assert(myHealthCheck.express, mockDependencies.express);
-  });
-  it('should not send update when missing parameters', () => {
-    healthCheck.update('one');
+  it('should not update status when called with invalid parameters', () => {
+    const res = healthCheck.update('one');
+    assert.notEqual(res, true);
     assert.deepEqual(healthCheck.healths, {
       status: '',
       statuses: {},
@@ -122,7 +101,7 @@ describe('tests', () => {
     assert.strictEqual(healthCheck.healths.statuses.two.status, 'green');
   });
   it('should provide / restapi', (done) => {
-    const request = supertest('http://localhost:' + healthCheck.express.port);
+    const request = supertest('http://localhost:' + healthCheck.dependencies.express.port);
     request.get('/')
       .end((err, resp) => {
         if (err) {
@@ -135,7 +114,7 @@ describe('tests', () => {
       });
   });
   it('should provide /health restapi', (done) => {
-    const request = supertest('http://localhost:' + healthCheck.express.port);
+    const request = supertest('http://localhost:' + healthCheck.dependencies.express.port);
     request.get('/health')
       .end((err, resp) => {
         if (err) {
@@ -181,7 +160,7 @@ describe('Healthcheck - constructor', function() {
     it('should throw an error', function() {
       return assert.throws(function() {
         return new Lib(mockDependencies, config);
-      }, `'express' dependency is missing`);
+      }, `express dependency is missing`);
     });
   });
 });
