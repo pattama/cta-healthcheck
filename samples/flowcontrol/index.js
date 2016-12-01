@@ -23,16 +23,16 @@ const config = {
   ],
   bricks: [{
     name: 'one',
-    module: '../../cta-healthcheck/samples/flowcontrol/bricks/one.js',
+    module: './bricks/one.js',
   }, {
     name: 'two',
-    module: '../../cta-healthcheck/samples/flowcontrol/bricks/two.js',
+    module: './bricks/two.js',
   }, {
     name: 'three',
-    module: '../../cta-healthcheck/samples/flowcontrol/bricks/three.js',
+    module: './bricks/three.js',
   }],
 };
 
 const FlowControl = require('cta-flowcontrol');
 const Cement = FlowControl.Cement;
-const cement = new Cement(config);
+const cement = new Cement(config, __dirname);
