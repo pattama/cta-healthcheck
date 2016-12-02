@@ -27,7 +27,7 @@ const healthCheck = new Lib(dependencies, config);
 
 describe('tests', () => {
   it('should not update status when called with invalid parameters', () => {
-    const res = healthCheck.update('one');
+    const res = healthCheck.update('something');
     assert.notEqual(res, true);
     assert.deepEqual(healthCheck.healths, {
       status: '',
@@ -35,7 +35,8 @@ describe('tests', () => {
     });
   });
   it('should update service one to red status', () => {
-    healthCheck.update('one', {
+    healthCheck.update({
+      name: 'one',
       status: 'red',
       reason: 'service down',
     });
@@ -46,7 +47,8 @@ describe('tests', () => {
     assert.deepEqual(healthCheck.healths.statuses.one.previous, {});
   });
   it('should update service one to green status', () => {
-    healthCheck.update('one', {
+    healthCheck.update({
+      name: 'one',
       status: 'green',
     });
     assert.strictEqual(healthCheck.healths.status, 'green');
@@ -57,10 +59,11 @@ describe('tests', () => {
     assert.strictEqual(healthCheck.healths.statuses.one.previous.services.default.reason, 'service down');
   });
   it('should update service two/alpha to yellow status', () => {
-    healthCheck.update('two', {
+    healthCheck.update({
+      name: 'two',
+      child: 'alpha',
       status: 'yellow',
       reason: 'critic point reached',
-      serviceName: 'alpha',
     });
     assert.strictEqual(healthCheck.healths.status, 'yellow');
     assert.strictEqual(healthCheck.healths.statuses.one.status, 'green');
@@ -70,10 +73,11 @@ describe('tests', () => {
     assert.deepEqual(healthCheck.healths.statuses.two.previous, {});
   });
   it('should update service two/beta to red status', () => {
-    healthCheck.update('two', {
+    healthCheck.update({
+      name: 'two',
+      child: 'beta',
       status: 'red',
       reason: 'service down',
-      serviceName: 'beta',
     });
     assert.strictEqual(healthCheck.healths.status, 'red');
     assert.strictEqual(healthCheck.healths.statuses.one.status, 'green');
@@ -83,18 +87,20 @@ describe('tests', () => {
     assert.strictEqual(healthCheck.healths.statuses.two.current.services.beta.reason, 'service down');
   });
   it('should update service two/beta to green status', () => {
-    healthCheck.update('two', {
+    healthCheck.update({
+      name: 'two',
+      child: 'beta',
       status: 'green',
-      serviceName: 'beta',
     });
     assert.strictEqual(healthCheck.healths.status, 'yellow');
     assert.strictEqual(healthCheck.healths.statuses.one.status, 'green');
     assert.strictEqual(healthCheck.healths.statuses.two.status, 'yellow');
   });
   it('should update service two/alpha to green status', () => {
-    healthCheck.update('two', {
+    healthCheck.update({
+      name: 'two',
+      child: 'alpha',
       status: 'green',
-      serviceName: 'alpha',
     });
     assert.strictEqual(healthCheck.healths.status, 'green');
     assert.strictEqual(healthCheck.healths.statuses.one.status, 'green');
@@ -113,9 +119,9 @@ describe('tests', () => {
         done();
       });
   });
-  it('should provide /health restapi', (done) => {
+  it('should provide /healthcheck restapi', (done) => {
     const request = supertest('http://localhost:' + healthCheck.dependencies.express.port);
-    request.get('/health')
+    request.get('/healthcheck')
       .end((err, resp) => {
         if (err) {
           return done(err);
@@ -160,7 +166,7 @@ describe('Healthcheck - constructor', function() {
     it('should throw an error', function() {
       return assert.throws(function() {
         return new Lib(mockDependencies, config);
-      }, `express dependency is missing`);
+      }, 'express dependency is missing');
     });
   });
 });

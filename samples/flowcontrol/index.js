@@ -12,9 +12,6 @@ const config = {
     {
       name: 'healthcheck',
       module: 'cta-healthcheck',
-      properties: {
-        queue: 'healthcheck',
-      },
       dependencies: {
         express: 'express',
       },
