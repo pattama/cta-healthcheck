@@ -3,8 +3,11 @@
 const assert = require('chai').assert;
 const supertest = require('supertest');
 const _ = require('lodash');
-
+const os = require('os');
+const path = require('path');
+const sinon = require('sinon');
 const Express = require('cta-expresswrapper');
+const Messaging = require('cta-messaging');
 const expressDependencies = {};
 const expressConfig = {
   name: 'express',
@@ -17,15 +20,26 @@ const express = new Express(expressDependencies, expressConfig);
 const Lib = require('../../lib');
 const config = {
   name: 'healthCheck',
-  properties: {},
+  properties: {
+    file: path.join(os.tmpDir(), `${Date.now()}.json`),
+  },
   singleton: false,
 };
 const dependencies = {
-  express: express,
+  express,
 };
 const healthCheck = new Lib(dependencies, config);
 
 describe('tests', () => {
+  it('should set file to default when not provided', function () {
+    sinon.stub(dependencies.express, 'get', () => {});
+    const defaultHealthCheck = new Lib(dependencies, {
+      name: 'healthCheck',
+      singleton: false,
+    });
+    assert.strictEqual(defaultHealthCheck.file.indexOf(os.tmpDir()), 0);
+    dependencies.express.get.restore();
+  });
   it('should not update status when called with invalid parameters', () => {
     const res = healthCheck.update('something');
     assert.notEqual(res, true);
@@ -129,6 +143,41 @@ describe('tests', () => {
         assert.deepEqual(resp.body, healthCheck.healths);
         done();
       });
+  });
+  it('should produce health update on queue when it is provided', function () {
+    const test = {};
+    test.dependencies = _.cloneDeep(dependencies);
+    test.dependencies.messaging = new Messaging();
+    test.config = {
+      name: 'healthCheck',
+      properties: {
+        queue: 'some_queue',
+        topic: 'some_topic',
+      },
+      singleton: false,
+    };
+    sinon.stub(test.dependencies.messaging, 'publish');
+    sinon.stub(test.dependencies.messaging, 'produce');
+    sinon.stub(test.dependencies.express, 'get', () => {});
+    const lib = new Lib(test.dependencies, test.config);
+    const data = {
+      name: 'some app',
+      status: 'green',
+      child: 'default',
+    };
+    lib.update(data);
+    const contextData = {
+      nature: {
+        type: 'healthcheck',
+        quality: 'update',
+      },
+      payload: data,
+    };
+    sinon.assert.calledWith(test.dependencies.messaging.produce, { queue: 'some_queue', json: contextData });
+    sinon.assert.calledWith(test.dependencies.messaging.publish, { topic: 'some_topic', json: contextData });
+    test.dependencies.messaging.produce.restore();
+    test.dependencies.messaging.publish.restore();
+    test.dependencies.express.get.restore();
   });
   it('should return same instance without port conflict', (done) => {
     try {

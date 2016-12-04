@@ -33,6 +33,7 @@
   "dependencies": {
     "lodash": "~4.11.0",
     "body-parser": "~1.13.2",
+    "jsonfile": "~2.4.0",
     "cta-tool": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/cta-tool.git",
     "cta-common": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/cta-common.git"
   }
