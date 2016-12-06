@@ -5,7 +5,7 @@ A Tool for Compass Test Automation
 
 This is the health check tool for CTA. Like any Tool it can be injected into other Tools & bricks via a flowcontrol configuration:
 
-```
+```js
 'use strict';
 
 const config = {
@@ -63,7 +63,6 @@ const config = {
 const FlowControl = require('cta-flowcontrol');
 const Cement = FlowControl.Cement;
 const cement = new Cement(config, __dirname);    
-    
 ```
 
 # Tool dependencies
@@ -78,6 +77,36 @@ const cement = new Cement(config, __dirname);
    * @param {String} configuration.properties.url - api url of a server (basically the healthcheck data service) where to post healthCheck updates
    * @param {String} configuration.properties.queue - Messaging queue name where to produce healthCheck updates
    * @param {String} configuration.properties.topic - Messaging topic name where to publish healthCheck updates
+
+# How to update your service healthCheck
+
+Use update(data) method
+
+   * @param {object} data - object of parameters
+   * @param {string} data.name - name of the service
+   * @param {string} data.child - optional, name of a child service in case the service depends on multiple child services
+   * @param {string} data.status - status of the child service: green, yellow, red
+   * - green: child service can be used properly
+   * - yellow: child service has reached a critic point, but it still can be used properly
+   * - red: child service can't be used properly
+   * @param {string} data.reason - reason of the given child status
+   * @return {Object} : { result: 'ok' } if ok, { error: * } if not
+   
+```js
+'use strict';
+const Brick = require('cta-brick');
+class One extends Brick {
+  constructor(cementHelper, config) {
+    super(cementHelper, config);
+    that.cementHelper.dependencies.healthcheck.update({
+        name: 'foo',
+        child: 'one',
+        status: 'green',
+    });
+  }
+}
+module.exports = One;
+```  
    
 # REST API
 
