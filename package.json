@@ -15,7 +15,7 @@
     "url": "git@git.sami.int.thomsonreuters.com:compass/cta-healthcheck.git"
   },
   "engines": {
-    "node": "4.2.2"
+    "node": "6.9.4"
   },
   "devDependencies": {
     "cta-tool-request": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/cta-tool-request.git",
@@ -24,11 +24,7 @@
     "babel-eslint": "~4.1.5",
     "chai": "~3.4.0",
     "eslint": "^3.2.2",
-    "eslint-config-airbnb": "^10.0.0",
     "eslint-config-cta": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/eslint-config-cta.git",
-    "eslint-plugin-import": "^1.16.0",
-    "eslint-plugin-jsx-a11y": "^2.2.3",
-    "eslint-plugin-react": "^6.5.0",
     "istanbul": "~0.4.1",
     "jsdoc": "~3.4.0",
     "mocha": "~2.3.4",
