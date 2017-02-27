@@ -15,7 +15,7 @@
     "url": "git@git.sami.int.thomsonreuters.com:compass/cta-healthcheck.git"
   },
   "engines": {
-    "node": "4.2.2"
+    "node": "6.9.4"
   },
   "devDependencies": {
     "eslint": "^3.2.2",
