@@ -2,14 +2,10 @@
 
 const HealthCheck = require('../../lib');
 const assert = require('chai').assert;
-const _ = require('lodash');
 const os = require('os');
 const path = require('path');
-const sinon = require('sinon');
 const jsonfile = require('jsonfile');
 const shortId = require('shortid');
-const request = new (require('cta-tool-request'))();
-const co = require('co');
 const mockExpress = {
   get: () => {},
   start: () => {},

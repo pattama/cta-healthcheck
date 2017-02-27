@@ -5,21 +5,11 @@ const assert = require('chai').assert;
 const _ = require('lodash');
 const os = require('os');
 const path = require('path');
-const sinon = require('sinon');
 const Express = require('cta-expresswrapper');
-const jsonfile = require('jsonfile');
 const shortId = require('shortid');
 const request = new (require('cta-tool-request'))();
 const co = require('co');
 const healths = require('./healths.testdata');
-const mockExpress = {
-  get: () => {},
-  start: () => {},
-};
-const mockMessaging = {
-  produce: () => {},
-  publish: () => {},
-};
 
 describe('HealthCheck - REST Api', function() {
   const express = new Express({}, {

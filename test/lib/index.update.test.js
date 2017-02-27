@@ -6,11 +6,7 @@ const _ = require('lodash');
 const os = require('os');
 const path = require('path');
 const sinon = require('sinon');
-const Messaging = require('cta-messaging');
-const jsonfile = require('jsonfile');
 const shortId = require('shortid');
-const request = new (require('cta-tool-request'))();
-const co = require('co');
 
 const mockExpress = {
   get: () => {},
@@ -191,8 +187,8 @@ describe('HealthCheck Messaging', function() {
       },
       payload: data,
     };
-    sinon.assert.calledWith(mockMessaging.produce, { queue: 'some_queue', json: contextData });
-    sinon.assert.calledWith(mockMessaging.publish, { topic: 'some_topic', json: contextData });
+    sinon.assert.calledWith(mockMessaging.produce, { queue: 'some_queue', content: contextData });
+    sinon.assert.calledWith(mockMessaging.publish, { topic: 'some_topic', content: contextData });
     sinon.assert.calledWith(mockRequest.post, 'some_url', data);
   });
 });
