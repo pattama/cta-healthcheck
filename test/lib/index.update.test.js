@@ -187,8 +187,8 @@ describe('HealthCheck Messaging', function() {
       },
       payload: data,
     };
-    sinon.assert.calledWith(mockMessaging.produce, { queue: 'some_queue', json: contextData });
-    sinon.assert.calledWith(mockMessaging.publish, { topic: 'some_topic', json: contextData });
+    sinon.assert.calledWith(mockMessaging.produce, { queue: 'some_queue', content: contextData });
+    sinon.assert.calledWith(mockMessaging.publish, { topic: 'some_topic', content: contextData });
     sinon.assert.calledWith(mockRequest.post, 'some_url', data);
   });
 });

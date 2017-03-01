@@ -18,10 +18,13 @@
     "node": "6.9.4"
   },
   "devDependencies": {
-    "babel-eslint": "~4.1.5",
-    "chai": "~3.4.0",
     "eslint": "^3.2.2",
     "eslint-config-cta": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/eslint-config-cta.git",
+    "cta-tool-request": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/cta-tool-request.git#1.0.0",
+    "cta-expresswrapper": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/cta-expresswrapper.git#1.0.0",
+    "cta-messaging": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/cta-messaging.git#1.0.0",
+    "babel-eslint": "~4.1.5",
+    "chai": "~3.4.0",
     "istanbul": "~0.4.1",
     "jsdoc": "~3.4.0",
     "mocha": "~2.3.4",
@@ -32,13 +35,10 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "cta-tool-request": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/cta-tool-request.git#1.0.0",
-    "cta-expresswrapper": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/cta-expresswrapper.git#1.0.0",
-    "cta-messaging": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/cta-messaging.git#1.0.0",
-    "cta-tool": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/cta-tool.git#1.0.0",
-    "cta-common": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/cta-common.git#1.0.0",
     "lodash": "~4.11.0",
     "body-parser": "~1.13.2",
-    "jsonfile": "~2.4.0"
+    "jsonfile": "~2.4.0",
+    "cta-tool": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/cta-tool.git#1.0.0",
+    "cta-common": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/cta-common.git#1.0.0"
   }
 }
