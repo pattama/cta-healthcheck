@@ -2,7 +2,6 @@
 
 const HealthCheck = require('../../lib');
 const assert = require('chai').assert;
-const _ = require('lodash');
 const os = require('os');
 const path = require('path');
 const sinon = require('sinon');
@@ -19,15 +18,22 @@ const mockMessaging = {
 const mockRequest = {
   post: () => {},
 };
+const mockCement = {
+  configuration: { name: 'foo' },
+};
 
 describe('Healthcheck - update', function() {
-  const healthCheck = new HealthCheck({ express: mockExpress }, {
+  const healthCheck = new HealthCheck({
+    cement: mockCement,
+    express: mockExpress
+  }, {
     name: 'healthCheck',
     properties: {
       file: path.join(os.tmpDir(), `${shortId.generate()}.json`),
     },
     singleton: false,
   });
+
   it('should not update status when called with invalid parameters', () => {
     const res = healthCheck.update('something');
     assert.property(res, 'error');
@@ -36,118 +42,179 @@ describe('Healthcheck - update', function() {
       statuses: {},
     });
   });
-  it('should update service one to red status', () => {
+
+  it('1. should update foo/one to yellow status', () => {
     healthCheck.update({
-      name: 'one',
-      status: 'red',
-      reason: 'service down',
-    });
-    const healths = _.cloneDeep(healthCheck.healths);
-    delete healths.statuses.one.current.services.default.date;
-    assert.deepEqual(healths, {
-      status: 'red',
-      statuses: {
-        one: {
-          status: 'red',
-          current: {
-            services: {
-              default: {
-                status: 'red',
-                reason: 'service down',
-              },
-            },
-          },
-          previous: {},
-        },
-      },
-    });
-  });
-  it('should update service one to green status', () => {
-    healthCheck.update({
-      name: 'one',
-      status: 'green',
-      reason: 'service back',
-    });
-    const healths = _.cloneDeep(healthCheck.healths);
-    delete healths.statuses.one.current.services.default.date;
-    delete healths.statuses.one.previous.services.default.date;
-    assert.deepEqual(healths, {
-      status: 'green',
-      statuses: {
-        one: {
-          status: 'green',
-          current: {
-            services: {
-              default: {
-                status: 'green',
-                reason: 'service back',
-              },
-            },
-          },
-          previous: {
-            services: {
-              default: {
-                status: 'red',
-                reason: 'service down',
-              },
-            },
-          },
-        },
-      },
-    });
-  });
-  it('should update service two/alpha to yellow status', () => {
-    healthCheck.update({
-      name: 'two',
-      child: 'alpha',
+      service: 'one',
       status: 'yellow',
-      reason: 'critic point reached',
+      reason: 'warning',
     });
     assert.strictEqual(healthCheck.healths.status, 'yellow');
-    assert.strictEqual(healthCheck.healths.statuses.one.status, 'green');
-    assert.strictEqual(healthCheck.healths.statuses.two.status, 'yellow');
-    assert.strictEqual(healthCheck.healths.statuses.two.current.services.alpha.status, 'yellow');
-    assert.strictEqual(healthCheck.healths.statuses.two.current.services.alpha.reason, 'critic point reached');
-    assert.deepEqual(healthCheck.healths.statuses.two.previous, {});
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.status, 'yellow');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.one.status, 'yellow');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.one.reason, 'warning');
   });
-  it('should update service two/beta to red status', () => {
+
+  it('2. should update foo/one to red status', () => {
     healthCheck.update({
-      name: 'two',
-      child: 'beta',
+      service: 'one',
       status: 'red',
       reason: 'service down',
     });
     assert.strictEqual(healthCheck.healths.status, 'red');
-    assert.strictEqual(healthCheck.healths.statuses.one.status, 'green');
-    assert.strictEqual(healthCheck.healths.statuses.two.status, 'red');
-    assert.strictEqual(healthCheck.healths.statuses.two.current.services.alpha.status, 'yellow');
-    assert.strictEqual(healthCheck.healths.statuses.two.current.services.beta.status, 'red');
-    assert.strictEqual(healthCheck.healths.statuses.two.current.services.beta.reason, 'service down');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.status, 'red');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.one.status, 'red');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.one.reason, 'service down');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.one.status, 'yellow');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.one.reason, 'warning');
   });
-  it('should update service two/beta to green status', () => {
+
+  it('3. should update foo/one to green status', () => {
     healthCheck.update({
-      name: 'two',
-      child: 'beta',
+      service: 'one',
       status: 'green',
-    });
-    assert.strictEqual(healthCheck.healths.status, 'yellow');
-    assert.strictEqual(healthCheck.healths.statuses.one.status, 'green');
-    assert.strictEqual(healthCheck.healths.statuses.two.status, 'yellow');
-  });
-  it('should update service two/alpha to green status', () => {
-    healthCheck.update({
-      name: 'two',
-      child: 'alpha',
-      status: 'green',
+      reason: 'back to normal',
     });
     assert.strictEqual(healthCheck.healths.status, 'green');
-    assert.strictEqual(healthCheck.healths.statuses.one.status, 'green');
-    assert.strictEqual(healthCheck.healths.statuses.two.status, 'green');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.status, 'green');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.one.status, 'green');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.one.reason, 'back to normal');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.one.status, 'red');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.one.reason, 'service down');
+  });
+
+  it('4. should update foo/two to yellow status', () => {
+    healthCheck.update({
+      service: 'two',
+      status: 'yellow',
+      reason: 'warning',
+    });
+    assert.strictEqual(healthCheck.healths.status, 'yellow');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.status, 'yellow');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.two.status, 'yellow');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.two.reason, 'warning');
+
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.one.status, 'green');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.one.reason, 'back to normal');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.one.status, 'red');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.one.reason, 'service down');
+  });
+
+  it('5. should update foo/two to red status', () => {
+    healthCheck.update({
+      service: 'two',
+      status: 'red',
+      reason: 'service down',
+    });
+    assert.strictEqual(healthCheck.healths.status, 'red');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.status, 'red');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.two.status, 'red');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.two.reason, 'service down');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.two.status, 'yellow');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.two.reason, 'warning');
+
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.one.status, 'green');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.one.reason, 'back to normal');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.one.status, 'red');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.one.reason, 'service down');
+  });
+
+  it('6. should update foo/two to green status', () => {
+    healthCheck.update({
+      service: 'two',
+      status: 'green',
+      reason: 'back to normal',
+    });
+    assert.strictEqual(healthCheck.healths.status, 'green');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.status, 'green');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.two.status, 'green');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.two.reason, 'back to normal');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.two.status, 'red');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.two.reason, 'service down');
+
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.one.status, 'green');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.one.reason, 'back to normal');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.one.status, 'red');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.one.reason, 'service down');
+  });
+
+  it('7. should update bar/one to yellow status', () => {
+    healthCheck.update({
+      name: 'bar',
+      service: 'one',
+      status: 'yellow',
+      reason: 'warning',
+    });
+    assert.strictEqual(healthCheck.healths.status, 'yellow');
+    assert.strictEqual(healthCheck.healths.statuses.bar.current.status, 'yellow');
+    assert.strictEqual(healthCheck.healths.statuses.bar.current.services.one.status, 'yellow');
+    assert.strictEqual(healthCheck.healths.statuses.bar.current.services.one.reason, 'warning');
+
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.status, 'green');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.one.status, 'green');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.one.reason, 'back to normal');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.two.status, 'green');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.two.reason, 'back to normal');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.one.status, 'red');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.one.reason, 'service down');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.two.status, 'red');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.two.reason, 'service down');
+  });
+
+  it('8. should update bar/one to red status', () => {
+    healthCheck.update({
+      name: 'bar',
+      service: 'one',
+      status: 'red',
+      reason: 'service down',
+    });
+    assert.strictEqual(healthCheck.healths.status, 'red');
+    assert.strictEqual(healthCheck.healths.statuses.bar.current.status, 'red');
+    assert.strictEqual(healthCheck.healths.statuses.bar.current.services.one.status, 'red');
+    assert.strictEqual(healthCheck.healths.statuses.bar.current.services.one.reason, 'service down');
+    assert.strictEqual(healthCheck.healths.statuses.bar.previous.services.one.status, 'yellow');
+    assert.strictEqual(healthCheck.healths.statuses.bar.previous.services.one.reason, 'warning');
+
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.status, 'green');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.one.status, 'green');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.one.reason, 'back to normal');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.two.status, 'green');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.two.reason, 'back to normal');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.one.status, 'red');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.one.reason, 'service down');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.two.status, 'red');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.two.reason, 'service down');
+  });
+
+  it('9. should update bar/one to green status', () => {
+    healthCheck.update({
+      name: 'bar',
+      service: 'one',
+      status: 'green',
+      reason: 'back to normal',
+    });
+    assert.strictEqual(healthCheck.healths.status, 'green');
+    assert.strictEqual(healthCheck.healths.statuses.bar.current.status, 'green');
+    assert.strictEqual(healthCheck.healths.statuses.bar.current.services.one.status, 'green');
+    assert.strictEqual(healthCheck.healths.statuses.bar.current.services.one.reason, 'back to normal');
+    assert.strictEqual(healthCheck.healths.statuses.bar.previous.services.one.status, 'red');
+    assert.strictEqual(healthCheck.healths.statuses.bar.previous.services.one.reason, 'service down');
+
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.status, 'green');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.one.status, 'green');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.one.reason, 'back to normal');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.two.status, 'green');
+    assert.strictEqual(healthCheck.healths.statuses.foo.current.services.two.reason, 'back to normal');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.one.status, 'red');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.one.reason, 'service down');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.two.status, 'red');
+    assert.strictEqual(healthCheck.healths.statuses.foo.previous.services.two.reason, 'service down');
   });
 });
 
 describe('HealthCheck Messaging', function() {
   const healthCheck = new HealthCheck({
+    cement: mockCement,
     express: mockExpress,
     messaging: mockMessaging,
     request: mockRequest,
@@ -176,8 +243,8 @@ describe('HealthCheck Messaging', function() {
   it('should call push methods when provided', function () {
     const data = {
       name: 'some app',
+      service: 'default',
       status: 'green',
-      child: 'default',
     };
     healthCheck.update(data);
     const contextData = {

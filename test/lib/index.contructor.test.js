@@ -10,27 +10,50 @@ const mockExpress = {
   get: () => {},
   start: () => {},
 };
-
+const mockCement = {
+  configuration: { name: 'test' },
+};
 describe('Healthcheck - constructor', function() {
   it('should throw an error when missing express dependency', function() {
     return assert.throws(function() {
-      return new HealthCheck({}, { name: 'foo' });
+      return new HealthCheck({
+        cement: mockCement,
+      }, { name: 'foo' });
     }, 'express dependency is missing');
   });
 
-  it('should set file to default when not provided', function () {
-    const healthCheck = new HealthCheck({ express: mockExpress }, {
+  it('should set app name to unknown when not provided', function () {
+    const healthCheck = new HealthCheck({
+      cement: {
+        configuration: {},
+      },
+      express: mockExpress,
+    }, {
       name: 'healthCheck',
       singleton: false,
     });
-    assert.strictEqual(healthCheck.properties.file, path.join(os.tmpDir(), 'healthcheck.json'));
+    assert.strictEqual(healthCheck.appName, 'unknown');
+  });
+
+  it('should set file to default when not provided', function () {
+    const healthCheck = new HealthCheck({
+      cement: mockCement,
+      express: mockExpress,
+    }, {
+      name: 'healthCheck',
+      singleton: false,
+    });
+    assert.strictEqual(healthCheck.properties.file, path.join(os.tmpDir(), 'healthcheck-test.json'));
   });
 
   it('should load healthcheck file from disk', function() {
     const fileName = path.join(os.tmpDir(), `${shortId.generate()}.json`);
     const content = { status: 'green', statuses: {} };
     jsonfile.writeFileSync(fileName, content, 'utf8');
-    const healthCheck = new HealthCheck({ express: mockExpress }, {
+    const healthCheck = new HealthCheck({
+      cement: mockCement,
+      express: mockExpress,
+    }, {
       name: 'healthCheck',
       properties: {
         file: fileName,
@@ -42,7 +65,10 @@ describe('Healthcheck - constructor', function() {
 
   it('should have empty healthcheck when file is empty', function() {
     const fileName = path.join(os.tmpDir(), `${shortId.generate()}.json`);
-    const healthCheck = new HealthCheck({ express: mockExpress }, {
+    const healthCheck = new HealthCheck({
+      cement: mockCement,
+      express: mockExpress,
+    }, {
       name: 'healthCheck',
       properties: {
         file: fileName,
@@ -56,7 +82,10 @@ describe('Healthcheck - constructor', function() {
   });
 
   it('should return same instance when singleton is set', function() {
-    const mockDependencies = { express: mockExpress };
+    const mockDependencies = {
+      cement: mockCement,
+      express: mockExpress,
+    };
     const mockConfig = {
       name: 'healthCheck',
       properties: {},
