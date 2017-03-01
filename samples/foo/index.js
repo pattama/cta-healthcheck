@@ -1,7 +1,7 @@
 'use strict';
 
 const config = {
-  name: 'app1',
+  name: 'foo',
   tools: [
     {
       name: 'logger',
@@ -47,8 +47,8 @@ const config = {
         request: 'request',
       },
       properties: {
-        // url: 'http://localhost:8000/healthcheck',
-        queue: 'cta.hck',
+        url: 'http://localhost:8000/healthcheck',
+        // queue: 'cta.hck',
       },
       scope: 'bricks',
       order: 3,
@@ -63,10 +63,6 @@ const config = {
       name: 'two',
       module: './bricks/two.js',
     },
-    {
-      name: 'three',
-      module: './bricks/three.js',
-    }
   ],
 };
 
