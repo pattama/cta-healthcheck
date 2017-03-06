@@ -22,17 +22,13 @@ describe('Healthcheck - constructor', function() {
     }, 'express dependency is missing');
   });
 
-  it('should set app name to unknown when not provided', function () {
-    const healthCheck = new HealthCheck({
-      cement: {
-        configuration: {},
-      },
-      express: mockExpress,
-    }, {
-      name: 'healthCheck',
-      singleton: false,
-    });
-    assert.strictEqual(healthCheck.appName, 'unknown');
+  it('should throw an error when missing app name', function () {
+    return assert.throws(function() {
+      return new HealthCheck({
+        cement: {},
+        express: mockExpress,
+      }, { name: 'foo' });
+    }, 'Application name is missing in the full configuration');
   });
 
   it('should set file to default when not provided', function () {
