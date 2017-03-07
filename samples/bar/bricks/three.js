@@ -2,14 +2,15 @@
 
 const Brick = require('cta-brick');
 
-class Two extends Brick {
+class Three extends Brick {
   constructor(cementHelper, config) {
     super(cementHelper, config);
+    const that = this;
     this.cementHelper.dependencies.healthcheck.update({
-      name: this.name,
+      service: that.name,
       status: 'green',
     });
   }
 }
 
-module.exports = Two;
+module.exports = Three;

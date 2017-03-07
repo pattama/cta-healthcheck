@@ -1,6 +1,7 @@
 'use strict';
 
 const config = {
+  name: 'bar',
   tools: [
     {
       name: 'logger',
@@ -27,7 +28,7 @@ const config = {
       name: 'express',
       module: 'cta-expresswrapper',
       properties: {
-        port: 8080,
+        port: 8090,
       },
       order: 1,
     },
@@ -55,17 +56,13 @@ const config = {
   ],
   bricks: [
     {
-      name: 'one',
-      module: './bricks/one.js',
-    },
-    {
-      name: 'two',
-      module: './bricks/two.js',
-    },
-    {
       name: 'three',
       module: './bricks/three.js',
-    }
+    },
+    {
+      name: 'four',
+      module: './bricks/four.js',
+    },
   ],
 };
 
