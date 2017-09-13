@@ -83,9 +83,9 @@ const cement = new Cement(config, __dirname);
 Use update(data) method
 
    * @param {object} data - object of parameters
-   * @param {string} data.name - name of the service
-   * @param {string} data.child - optional, name of a child service in case the service depends on multiple child services
-   * @param {string} data.status - status of the child service: green, yellow, red
+   * @param {string} data.name - name of the application, default to name provided in full app config
+   * @param {string} data.service - name of the service (brick/tool name, brick/tool micro service name... etc)
+   * @param {string} data.status - status of the service: green, yellow, red
    * - green: child service can be used properly
    * - yellow: child service has reached a critic point, but it still can be used properly
    * - red: child service can't be used properly
@@ -100,7 +100,7 @@ class One extends Brick {
     super(cementHelper, config);
     that.cementHelper.dependencies.healthcheck.update({
         name: 'foo',
-        child: 'one',
+        service: 'one',
         status: 'green',
     });
   }

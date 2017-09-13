@@ -10,7 +10,9 @@ const shortId = require('shortid');
 const request = new (require('cta-tool-request'))();
 const co = require('co');
 const healths = require('./healths.testdata');
-
+const mockCement = {
+  configuration: { name: 'test' },
+};
 describe('HealthCheck - REST Api', function() {
   const express = new Express({}, {
     name: 'express',
@@ -20,7 +22,10 @@ describe('HealthCheck - REST Api', function() {
   });
   it('GET /healthcheck', function(done) {
     co(function * coroutine() {
-      const healthCheck = new HealthCheck({ express }, {
+      const healthCheck = new HealthCheck({
+        cement: mockCement,
+        express,
+      }, {
         name: 'healthCheck',
         properties: {
           file: path.join(os.tmpDir(), `${shortId.generate()}.json`),
