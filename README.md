@@ -1,194 +1,146 @@
-Health Check Tool
-=================
+# cta-healthcheck [ ![build status](https://git.sami.int.thomsonreuters.com/compass/cta-healthcheck/badges/master/build.svg)](https://git.sami.int.thomsonreuters.com/compass/cta-healthcheck/commits/master) [![coverage report](https://git.sami.int.thomsonreuters.com/compass/cta-healthcheck/badges/master/coverage.svg)](https://git.sami.int.thomsonreuters.com/compass/cta-healthcheck/commits/master)
 
-A Tool for Compass Test Automation
+HealthCheck Modules for Compass Test Automation, One of Libraries in CTA-OSS Framework
 
-This is the health check tool for CTA. Like any Tool it can be injected into other Tools & bricks via a flowcontrol configuration:
+## General Overview
 
-```js
+## Guidelines
+
+We aim to give you brief guidelines here.
+
+1. [Point](#1-point)
+1. [Point](#2-point)
+1. [Point](#3-point)
+
+### 1. Usage
+
+```javascript
 'use strict';
 
-const config = {
-  tools: [
-    {
-      name: 'logger',
-      module: 'cta-logger',
-      properties: {
-        level: 'silly',
-      },
-      scope: 'all',
-      order: 0,
-    },
-    {
-      name: 'express',
-      module: 'cta-expresswrapper',
-      properties: {
-        port: 8080,
-      },
-      order: 1,
-    },
-    {
-      name: 'request',
-      module: 'cta-tool-request',
-      properties: {},
-      order: 2,
-    },
-    {
-      name: 'healthcheck',
-      module: 'cta-healthcheck',
-      dependencies: {
-        express: 'express',
-        request: 'request',
-      },
-      properties: {
-        file: './healths.json',
-        url: 'http://somedomain:3000/healthcheck',
-      },
-      scope: 'bricks',
-      order: 3,
-    },
-  ],
-  bricks: [{
-    name: 'one',
-    module: './bricks/one.js',
-  }, {
-    name: 'two',
-    module: './bricks/two.js',
-  }, {
-    name: 'three',
-    module: './bricks/three.js',
-  }],
+const HealthCheck = require('cta-healthcheck');
+
+const instance = new HealthCheck(dependencies, configuration);
+const status = {
+  ...
+};
+instance.update(status);
+```
+
+The **constructor** requires **dependencies** and **configuration**.
+
+The **HealthCheck** provides **update() method** to update **_the status of service_**.
+
+[back to top](#guidelines)
+
+### 2. Configuration
+
+Because the **HealthCheck** is _a tool_, the **configuration** is _vital_.
+
+```javascript
+'use strict';
+
+const configuration = {
+  name: 'healthcheck',
+  module: 'cta-healthcheck',
+  dependencies: {
+    express: 'express',
+  },
+  properties: {
+    file: './healths.json',
+    queue: 'cta.healths',
+    topic: 'cta.healths',
+    url: 'http://domain.com:3000/healthcheck',
+  },
+};
+```
+
+The **configuration** has these following fields:
+
+* **name** - defines a name of the **HealthCheck** tool _which can be any name_
+* **module** - must be **'cta-healthcheck'**
+* **dependencies** - defines dependencies, see on [**dependencies**](#3-dependencies) section
+* **properties** - defines properties, see on [**properties**](#4-properties) section
+
+[back to top](#guidelines)
+
+### 3. Dependencies
+
+Here are examples.
+
+```javascript
+'use strict';
+
+const dependencies = {
+  express: 'sample.express',
+  messaging: 'sample.messaging',
+  request: 'sample.request',
 };
 
-const FlowControl = require('cta-flowcontrol');
-const Cement = FlowControl.Cement;
-const cement = new Cement(config, __dirname);    
+...
+
+const tools = [{
+  name: 'sample.express',
+  module: 'cta-expresswrapper',
+  properties: {
+    port: 8080,
+  },
+}, {
+  name: 'sample.messaging',
+  module: 'cta-messaging',
+  properties: {
+    provider: 'rabbitmq',
+    parameters: {
+      url: 'amqp://localhost?heartbeat=60',
+      ack: 'auto',
+    },
+  },
+}, {
+  name: 'sample.request',
+  module: 'cta-tool-request',
+  properties: {}
+}];
+
 ```
 
-# Tool dependencies
+The **HealthCheck** requires **express** as _dependencies_.
 
-   * @param {object} dependencies.express - cta-expresswrapper tool instance
-   * @param {object} dependencies.messaging - optional cta-messaging tool instance
-   * @param {object} dependencies.request - optional cta-request tool instance
+* **express** (required) - defines a name of the **express** tool
 
-# Tool properties
+* **messaging** (optional) - defines a name of the **messaging** tool
 
-   * @param {String} configuration.properties.file - full path to a file where to store healths for resiliency
-   * @param {String} configuration.properties.url - api url of a server (basically the healthcheck data service) where to post healthCheck updates
-   * @param {String} configuration.properties.queue - Messaging queue name where to produce healthCheck updates
-   * @param {String} configuration.properties.topic - Messaging topic name where to publish healthCheck updates
+* **request** (optional) - defines a name of the **request** tool
 
-# How to update your service healthCheck
+[back to top](#guidelines)
 
-Use update(data) method
+### 4. Properties
 
-   * @param {object} data - object of parameters
-   * @param {string} data.name - name of the application, default to name provided in full app config
-   * @param {string} data.service - name of the service (brick/tool name, brick/tool micro service name... etc)
-   * @param {string} data.status - status of the service: green, yellow, red
-   * - green: child service can be used properly
-   * - yellow: child service has reached a critic point, but it still can be used properly
-   * - red: child service can't be used properly
-   * @param {string} data.reason - reason of the given child status
-   * @return {Object} : { result: 'ok' } if ok, { error: * } if not
-   
-```js
+```javascript
 'use strict';
-const Brick = require('cta-brick');
-class One extends Brick {
-  constructor(cementHelper, config) {
-    super(cementHelper, config);
-    that.cementHelper.dependencies.healthcheck.update({
-        name: 'foo',
-        service: 'one',
-        status: 'green',
-    });
-  }
-}
-module.exports = One;
-```  
-   
-# REST API
 
-GET /healthcheck
-```
-{
-  status: 'red'
-}
+const properties = {
+  file: './healths.json',
+  queue: 'cta.healths',
+  topic: 'cta.healths',
+  url: 'http://domain.com:3000/healthcheck',
+};
 ```
 
-GET /healthcheck?mode=full
-```
-{
-  status: 'red',
-  statuses: {
-    foo: {
-      status: 'red',
-      current: {
-        services: {
-          alpha: {
-            date: '2016-12-05T13:00:00.000Z',
-            status: 'red'
-          },
-          beta: {
-            date: '2016-12-05T11:00:00.000Z',
-            status: 'green'
-          }
-        }
-      },
-      previous: {
-        services: {
-          alpha: {
-            date: '2016-12-05T12:00:00.000Z',
-            status: 'green'
-          }
-        }
-      }
-    }
-  }
-}
-```
+* **file** - defines **full path** to a file where to store healths for resiliency
 
-GET /healthcheck?mode=current
-```
-{
-  status: 'red',
-  statuses: {
-    foo: {
-      status: 'red',
-      current: {
-        services: {
-          alpha: {
-            date: '2016-12-05T13:00:00.000Z',
-            status: 'red'
-          },
-          beta: {
-            date: '2016-12-05T11:00:00.000Z',
-            status: 'green'
-          }
-        }
-      }     
-    }
-  }
-}
-```
+* **queue** - defines **messaging queue name** where to produce HealthCheck updates
 
-GET /healthcheck?mode=previous
-```
-{
-  status: 'red',
-  statuses: {
-    foo: {
-      status: 'red',
-      previous: {
-        services: {
-          alpha: {
-            date: '2016-12-05T12:00:00.000Z',
-            status: 'green'
-          }
-        }
-      }
-    }
-  }
-}
-```
+* **topic** - defines **messaging topic name** where to publish HealthCheck updates
+
+* **url** - defines **api url of a server** (basically the healthcheck data service) where to post HealthCheck updates
+
+[back to top](#guidelines)
+
+### 5. Update HealthCheck Status
+
+
+
+------
+
+## To Do
+
+* More Points
