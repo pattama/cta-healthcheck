@@ -8,9 +8,12 @@ HealthCheck Modules for Compass Test Automation, One of Libraries in CTA-OSS Fra
 
 We aim to give you brief guidelines here.
 
-1. [Point](#1-point)
-1. [Point](#2-point)
-1. [Point](#3-point)
+1. [Usage](#1-usage)
+1. [Configuration](#2-configuration)
+1. [Dependencies](#3-dependencies)
+1. [Properties](#4-properties)
+1. [Update HealthCheck Status](#5-update-healthcheck-status)
+1. [Query](#6-query)
 
 ### 1. Usage
 
