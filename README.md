@@ -26,9 +26,9 @@ const status = {
 instance.update(status);
 ```
 
-The **constructor** requires **dependencies** and **configuration**.
+The **constructor** requires [**dependencies**](#3-dependencies) and [**configuration**](#2-configuration).
 
-The **HealthCheck** provides **update() method** to update **_the status of service_**.
+The **HealthCheck** provides [**update() method**](#5-update-healthcheck-status) to update **_the status of service_**.
 
 [back to top](#guidelines)
 
@@ -137,10 +137,203 @@ const properties = {
 
 ### 5. Update HealthCheck Status
 
+This shows how **update() method** has been using:
 
+```javascript
+...
+const instance = new HealthCheck(dependencies, configuration);
+const status = {
+  ...
+};
+instance.update(status);
+```
+
+#### <u>HealthCheck Status</u>
+
+The **Status** has the structure as following:
+
+```javascript
+const status = {
+  name: string;
+  service: string;
+  status: string;
+  reason: string;
+};
+```
+
+* **name** - defines the name of **application**
+* **service** - defines the name of **service**
+* **status** - defines the current **status** of service: **green**, **yellow**, and **red**
+  - **green** - the service is in **proper status**
+  - **yellow** - the service is in **critical status**, but it _**can** still be used properly_
+  - **red** - the service is in **not-working status**, but it _**cannot** be used properly_
+* **reason** - defines the **reason** of status
+
+#### <u>Usage inside Brick</u>
+
+```javascript
+const Brick = require('cta-brick');
+
+class SampleBrick extends Brick {
+  constructor(cementHelper, config) {
+    super(cementHelper, config);  // calling Brick's constructor
+    
+    // HealthCheck is available as dependencies.
+    // By calling update(), the HealthCheck sends a status.
+    this.cementHelper.dependencies.healthcheck.update({
+      name: 'SampleApplication',
+      service: 'SampleService',
+      status: 'green',
+    });
+  }
+}
+
+module.exports = SampleBrick;
+```
+
+The **Brick** has **HealthCheck** as its **dependencies**. By calling **Brick's constructor**, the **HealthCheck** is available as **SampleBrick**'s dependencies. Calling **update()** sends a status.
+
+[back to top](#guidelines)
+
+### 6. Query
+
+The **HealthCheck** provides a query via **Express**.
+
+There four way to query:
+
+* [No Mode Query](#no-mode-query)
+
+* [Full Mode Query](#full-mode-query)
+
+* [Current Mode Query](#current-mode-query)
+
+* [Previous Mode Query](#previous-mode-query)
+
+#### No Mode Query
+
+**REST Query** - GET :: /healthcheck
+
+```javascript
+// with no mode provided
+{
+  'status': 'green'
+}
+```
+
+[back](#6-query)
+
+#### Full Mode Query
+
+**REST Query** - GET :: /healthcheck?mode=full
+
+```javascript
+// with 'full' mode provided
+{
+  status: 'green',
+  statuses: {
+    SampleApplication: {
+      status: 'green',
+      current: {
+        services: {
+          alpha: {
+            date: '2017-12-25T18:00:00.000Z',
+            status: 'green'
+          },
+          beta: {
+            date: '2017-12-24T11:00:00.000Z',
+            status: 'green'
+          }
+        }
+      },
+      previous: {
+        services: {
+          alpha: {
+            date: '2017-12-24T12:00:00.000Z',
+            status: 'red'
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+[back](#6-query)
+
+#### Current Mode Query
+
+**REST Query** - GET :: /healthcheck?mode=current
+
+```javascript
+// with 'current' mode provided
+{
+  status: 'green',
+  statuses: {
+    SampleApplication: {
+      status: 'green',
+      current: {
+        services: {
+          alpha: {
+            date: '2017-12-25T18:00:00.000Z',
+            status: 'green'
+          },
+          beta: {
+            date: '2017-12-24T11:00:00.000Z',
+            status: 'green'
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+[back](#6-query)
+
+#### Previous Mode Query
+
+**REST Query** - GET :: /healthcheck?mode=previous
+
+```javascript
+// with 'previous' mode provided
+{
+  status: 'green',
+  statuses: {
+    SampleApplication: {
+      status: 'green',
+      previous: {
+        services: {
+          alpha: {
+            date: '2017-12-24T12:00:00.000Z',
+            status: 'red'
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+[back](#6-query)
 
 ------
 
 ## To Do
 
-* More Points
+------
+
+## Considerations
+
+#### Should we change specific, close-to-'ExpressJS' **dependencies.express** to a common name, dependencies.[restapp]?
+
+```javascript
+const config = {
+  ...
+  dependencies: {
+    express: 'my-express',  =>  restapp: 'my-express',
+  },
+  ...
+};
+```
+
+------
