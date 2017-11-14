@@ -199,7 +199,7 @@ The **Brick** has **HealthCheck** as its **dependencies**. By calling **Brick's 
 
 The **HealthCheck** provides a query via **Express**.
 
-There four way to query:
+There **_four_ ways** to query:
 
 * [No Mode Query](#no-mode-query)
 
