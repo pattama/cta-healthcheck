@@ -7,22 +7,25 @@
   "scripts": {
     "test": "NODE_PATH=. _mocha",
     "codecoverage": "istanbul cover node_modules/mocha/bin/_mocha -- -R spec",
+    "coveralls": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && codecov",
     "lint": "eslint --quiet lib test",
     "docs": "jsdoc --readme README.md lib -r -d docs && opener ./docs/index.html"
   },
   "repository": {
     "type": "git",
-    "url": "git@git.sami.int.thomsonreuters.com:compass/cta-healthcheck.git"
+    "url": "https://github.com/thomsonreuters/cta-healthcheck.git"
   },
   "engines": {
-    "node": "6.9.4"
+    "node": ">=6"
   },
   "devDependencies": {
     "eslint": "^3.2.2",
-    "eslint-config-cta": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/eslint-config-cta.git",
-    "cta-tool-request": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/cta-tool-request.git#1.0.0",
-    "cta-expresswrapper": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/cta-expresswrapper.git#1.0.0",
-    "cta-messaging": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/cta-messaging.git#1.0.0",
+    "eslint-config-cta": "^1.0.1",
+    "codecov": "^3.0.0",
+    "coveralls": "^3.0.0",
+    "cta-tool-request": "thomsonreuters/cta-tool-request#1.0.0",
+    "cta-expresswrapper": "thomsonreuters/cta-expresswrapper#1.0.0",
+    "cta-messaging": "thomsonreuters/cta-messaging#1.0.0",
     "babel-eslint": "~4.1.5",
     "chai": "~3.4.0",
     "istanbul": "~0.4.1",
@@ -38,7 +41,7 @@
     "lodash": "~4.11.0",
     "body-parser": "~1.13.2",
     "jsonfile": "~2.4.0",
-    "cta-tool": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/cta-tool.git#1.0.0",
-    "cta-common": "git+ssh://git@git.sami.int.thomsonreuters.com:compass/cta-common.git#1.0.0"
+    "cta-tool": "thomsonreuters/cta-tool#1.0.0",
+    "cta-common": "thomsonreuters/cta-common#1.0.0"
   }
 }
