@@ -1,4 +1,7 @@
-# cta-healthcheck [ ![build status](https://git.sami.int.thomsonreuters.com/compass/cta-healthcheck/badges/master/build.svg)](https://git.sami.int.thomsonreuters.com/compass/cta-healthcheck/commits/master) [![coverage report](https://git.sami.int.thomsonreuters.com/compass/cta-healthcheck/badges/master/coverage.svg)](https://git.sami.int.thomsonreuters.com/compass/cta-healthcheck/commits/master)
+# cta-healthcheck
+[![Build Status](https://travis-ci.org/thomsonreuters/cta-healthcheck.svg?branch=master)](https://travis-ci.org/thomsonreuters/cta-healthcheck)
+[![Coverage Status](https://coveralls.io/repos/github/thomsonreuters/cta-healthcheck/badge.svg?branch=master)](https://coveralls.io/github/thomsonreuters/cta-healthcheck?branch=master)
+[![codecov](https://codecov.io/gh/thomsonreuters/cta-healthcheck/branch/master/graph/badge.svg)](https://codecov.io/gh/thomsonreuters/cta-healthcheck)
 
 HealthCheck Modules for Compass Test Automation, One of Libraries in CTA-OSS Framework
 
